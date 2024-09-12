@@ -31,7 +31,6 @@ class SettingsProvider extends ChangeNotifier {
           error:
           "Your Arbor data was deleted. Please restart/reinstall the app.");
     } catch (error) {
-      print('Error: ${error.toString()}');
       return BaseResponse(
           success: false,
           error: "We couldn't delete the data. Error: ${error.toString()}");

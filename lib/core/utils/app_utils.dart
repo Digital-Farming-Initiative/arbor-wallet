@@ -1,4 +1,7 @@
+import 'package:arbor/core/providers/auth_provider.dart';
 import 'package:flutter/material.dart';
+
+AuthAction? authAction;
 
 class AppUtils {
   static showSnackBar(BuildContext context, String message, Color color) {

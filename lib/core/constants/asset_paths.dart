@@ -12,6 +12,9 @@ class AssetPaths {
 
   static const String delete = '$baseIconPath/delete.svg';
   static const String discord = '$baseIconPath/discord.svg';
+  static const String faceId = '$baseIconPath/face-id.svg';
+  static const String fingerprint = '$baseIconPath/fingerprint.svg';
+  static const String padlock = '$baseIconPath/padlock.svg';
   static const String privacyPolicy = '$baseIconPath/privacy_policy.svg';
   static const String qr = '$baseIconPath/qr.svg';
   static const String receive = '$baseIconPath/receive.svg';

@@ -1,5 +1,5 @@
+import 'package:arbor/core/constants/arbor_colors.dart';
 import 'package:flutter/material.dart';
-import '../core/constants/arbor_colors.dart';
 
 class ArborThemeData {
   static final ThemeData lightTheme = ThemeData(

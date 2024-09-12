@@ -5,7 +5,7 @@ import 'package:arbor/views/screens/base/base_screen.dart';
 import 'package:arbor/core/utils/password_mixin.dart';
 import 'package:arbor/views/widgets/arbor_button.dart';
 import 'package:arbor/views/widgets/layout/hide_keyboard_container.dart';
-import 'package:arbor/views/widgets/password_box.dart';
+import 'package:arbor/views/widgets/text_fields/password_box.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 

@@ -1,13 +1,20 @@
+import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:arbor/core/constants/arbor_colors.dart';
+import 'package:arbor/core/providers/auth_provider.dart';
 import 'package:arbor/core/constants/arbor_constants.dart';
 import 'package:arbor/core/providers/restore_wallet_provider.dart';
 import 'package:arbor/core/providers/send_crypto_provider.dart';
 import 'package:arbor/core/providers/settings_provider.dart';
+import 'package:arbor/core/utils/app_utils.dart';
+import 'package:arbor/core/utils/local_storage_utils.dart';
 import 'package:arbor/models/models.dart';
 import 'package:arbor/views/screens/base/base_screen.dart';
 import 'package:arbor/views/screens/no_encryption_available_sccreen.dart';
+import 'package:arbor/views/screens/settings/unlock_with_pin_screen.dart';
+import 'package:arbor/views/themes/arbor_theme_data.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -20,12 +27,12 @@ import 'core/providers/create_wallet_provider.dart';
 import 'models/blockchain.dart';
 import 'models/transaction.dart';
 import 'models/wallet.dart';
-import 'themes/arbor_theme_data.dart';
 import 'views/screens/on_boarding/splash_screen.dart';
 
 main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Hive.initFlutter();
+  await customSharedPreference.init();
 
   try {
     const FlutterSecureStorage secureStorage = FlutterSecureStorage();
@@ -66,7 +73,7 @@ main() async {
         );
       }
 
-      runApp(const MyApp());
+      runApp(MyApp());
     } else {
       return runApp(
         const MaterialApp(
@@ -101,13 +108,15 @@ void _hiveAdaptersRegistration() {
 }
 
 class MyApp extends StatefulWidget {
-  const MyApp({Key? key}) : super(key: key);
-
   @override
   _MyAppState createState() => _MyAppState();
 }
 
-class _MyAppState extends State<MyApp> {
+class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
+  StreamController<bool> _showLockScreenStream = StreamController();
+  StreamSubscription? _showLockScreenSubs;
+  GlobalKey<NavigatorState> _navigatorKey = GlobalKey();
+
   Future<bool> _isFirstTimeUser() async {
     bool _isFirstTime;
     final prefs = await SharedPreferences.getInstance();
@@ -117,9 +126,40 @@ class _MyAppState extends State<MyApp> {
   }
 
   @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance!.addObserver(this);
+
+    _showLockScreenSubs = _showLockScreenStream.stream.listen((bool show) {
+      if (mounted && show) {
+        _showRequiredScreen();
+      }
+    });
+
+
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+  }
+
+  @override
+  void setState(fn) {
+    super.setState(fn);
+  }
+
+  @override
+  void deactivate() {
+    super.deactivate();
+  }
+
+  @override
   void dispose() {
     // Closes all Hive boxes
     Hive.close();
+    WidgetsBinding.instance!.removeObserver(this);
+    _showLockScreenSubs?.cancel();
     super.dispose();
   }
 
@@ -127,6 +167,7 @@ class _MyAppState extends State<MyApp> {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
+        ChangeNotifierProvider(create: (_) => AuthProvider()),
         ChangeNotifierProvider(create: (_) => CreateWalletProvider()),
         ChangeNotifierProvider(create: (_) => RestoreWalletProvider()),
         ChangeNotifierProvider(create: (_) => SendCryptoProvider()),
@@ -134,6 +175,7 @@ class _MyAppState extends State<MyApp> {
       ],
       child: ScreenUtilInit(
         builder: () => MaterialApp(
+            navigatorKey: _navigatorKey,
             title: 'Arbor',
             theme: ArborThemeData.lightTheme,
             debugShowCheckedModeBanner: false,
@@ -144,7 +186,14 @@ class _MyAppState extends State<MyApp> {
                     bool _isFirstTime = snapshot.data as bool;
                     if (_isFirstTime) {
                       return SplashScreen();
-                    } else {
+                    }else if(customSharedPreference.pinIsSet ||
+                        customSharedPreference.biometricsIsSet){
+                      return UnlockWithPinScreen(
+                        fromRoot: true,
+                        unlock: true,
+                      );
+                    }
+                    else {
                       return const BaseScreen();
                     }
                   } else {
@@ -152,8 +201,67 @@ class _MyAppState extends State<MyApp> {
                       color: ArborColors.green,
                     );
                   }
-                })),
+                }),
+        ),
       ),
     );
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+    switch (state) {
+      case AppLifecycleState.inactive:
+        debugPrint('appLifeCycleState inactive');
+        break;
+      case AppLifecycleState.resumed:
+        _showLockScreenStream.add(true);
+        debugPrint('appLifeCycleState resumed');
+        break;
+      case AppLifecycleState.paused:
+        debugPrint('appLifeCycleState paused');
+        break;
+      case AppLifecycleState.detached:
+        debugPrint('appLifeCycleState detached');
+        break;
+    }
+  }
+
+  void _showRequiredScreen() async {
+    bool isFirstTimer = await _isFirstTimeUser();
+
+    if (authAction != null && authAction == AuthAction.SetUp) {
+      _navigatorKey.currentState!.pushReplacement(
+          new MaterialPageRoute(builder: (BuildContext context) {
+            return BaseScreen();
+          }));
+
+    } else if (isFirstTimer) {
+      _navigatorKey.currentState!.pushReplacement(
+          new MaterialPageRoute(builder: (BuildContext context) {
+        return SplashScreen();
+      }));
+    } else if (customSharedPreference.isAlreadyUnlocked == true &&
+        Platform.isIOS) {
+      _navigatorKey.currentState!.pushReplacement(
+          new MaterialPageRoute(builder: (BuildContext context) {
+        return BaseScreen();
+      }));
+      customSharedPreference.setIsAlreadyUnlocked(false);
+    } else if (customSharedPreference.pinIsSet ||
+        customSharedPreference.biometricsIsSet) {
+      _navigatorKey.currentState!.pushReplacement(
+          new MaterialPageRoute(builder: (BuildContext context) {
+        return UnlockWithPinScreen(
+          fromRoot: true,
+          unlock: true,
+        );
+      }));
+    } else {
+      _navigatorKey.currentState!.pushReplacement(
+          new MaterialPageRoute(builder: (BuildContext context) {
+        return BaseScreen();
+      }));
+    }
   }
 }

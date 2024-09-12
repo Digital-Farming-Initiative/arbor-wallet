@@ -5,7 +5,7 @@ import 'package:arbor/core/providers/create_wallet_provider.dart';
 import 'package:arbor/core/utils/ui_helpers.dart';
 import 'package:arbor/views/screens/add_wallet/add_wallet_complete_screen.dart';
 import 'package:arbor/views/widgets/arbor_button.dart';
-import 'package:arbor/views/widgets/phrase_text.dart';
+import 'package:arbor/views/widgets/text_fields/phrase_text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';

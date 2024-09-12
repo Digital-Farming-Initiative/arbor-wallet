@@ -30,6 +30,8 @@
 	<string>Arbor Wallet needs camera access to scan QR codes.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>Allow saving QR codes to your photo library.</string>
+	<key>NSFaceIDUsageDescription</key>
+    <string>Biometric authentication required for added security</string>
 	<key>UILaunchStoryboardName</key>
 	<string>LaunchScreen</string>
 	<key>UIMainStoryboardFile</key>
