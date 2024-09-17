@@ -49,6 +49,8 @@ main() async {
       _hiveAdaptersRegistration();
       // Opening the box
       try {
+        await Hive.openBox(HiveConstants.blockchainBox,
+            encryptionCipher: HiveAesCipher(encryptionKey));
         await Hive.openBox(HiveConstants.walletBox,
             encryptionCipher: HiveAesCipher(encryptionKey));
         await Hive.openBox(HiveConstants.transactionsBox,

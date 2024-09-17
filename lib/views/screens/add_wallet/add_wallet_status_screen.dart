@@ -240,6 +240,7 @@ class AddWalletStatusScreen extends StatelessWidget {
         ),
         Text(
           'Oops!',
+          textAlign: TextAlign.center,
           style: TextStyle(
             color: ArborColors.white,
             fontWeight: FontWeight.w600,
@@ -248,6 +249,7 @@ class AddWalletStatusScreen extends StatelessWidget {
         ),
         Text(
           '${model.errorMessage}',
+          textAlign: TextAlign.center,
           style: TextStyle(
             color: ArborColors.white,
             fontWeight: FontWeight.w400,

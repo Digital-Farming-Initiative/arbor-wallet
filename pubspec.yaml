@@ -13,6 +13,7 @@ dependencies:
   flutter_localizations:
     sdk: flutter
 
+  #UI
   cupertino_icons: ^1.0.2
   flutter_svg: ^0.22.0
   google_fonts: ^2.0.0
@@ -29,8 +30,12 @@ dependencies:
   #Alert
   flash: ^2.0.1
 
-  # App Version
+  #App Version
   package_info_plus: ^1.0.6
+
+  #Internet
+  connectivity_plus: ^1.0.5
+  internet_connection_checker: ^0.0.1+1
 
   #QR
   image: ^3.0.4
@@ -43,7 +48,7 @@ dependencies:
   #State Management
   provider: ^6.0.0
 
-  # WalletReceiveScreen
+  #WalletReceiveScreen
   path_provider: ^2.0.3
   share_plus: ^2.1.4
 

@@ -195,7 +195,7 @@ class SendCryptoProvider extends ChangeNotifier {
           address: _receiverAddress,
           fee: blockchain!.network_fee,
           ticker: blockchain!.ticker,
-          blockChainExtraData: aggSigExtraData);
+          aggSigMeExtraData: aggSigExtraData);
 
       if (transactionResponse == 'success') {
         transactionInProgress = true;
